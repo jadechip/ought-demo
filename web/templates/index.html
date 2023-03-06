@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <title>Ought Demo Search Engine</title>
+  </head>
+  <body>
+   <div class="container mt-5 ">
+    <h1>Ought Demo Search Engine</h1>
+
+    <div class="mb-5">
+      <form>
+        <div class="mb-3">
+          <label for="searchQuery" class="form-label">Search</label>
+          <input type="query" class="form-control" id="searchQuery">
+        </div>
+        <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Title</th>
+          <th>Abstract</th>
+        </tr>
+      </thead>
+        <tbody id="result"></tbody>
+    </table>
+  </div>
+
+    <script type="text/javascript">
+
+      var submit = document.getElementById("submit");
+      if (submit != null) {
+        submit.addEventListener("click", search);
+      }
+
+      function search(e) {
+        e.preventDefault()
+        var xhr = new XMLHttpRequest(); 
+        xhr.open("POST", "/search", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        
+        xhr.onreadystatechange = function() {
+          if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+            console.log(this.responseText);
+            var objects = JSON.parse(this.responseText);
+            console.log("The response", objects);
+
+            var table = document.getElementById("result");
+            if (table != null) {
+              table.innerHTML = "";
+
+              for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
+
+                var tr = document.createElement("tr");
+                var td = null;
+
+                td = document.createElement("td");
+                td.appendChild(document.createTextNode(object['_id']));
+                tr.appendChild(td);
+
+                td = document.createElement("td");
+                td.appendChild(document.createTextNode(object['_source']['title']));
+                tr.appendChild(td);
+
+                td = document.createElement("td");
+                td.appendChild(document.createTextNode(object['_source']['abstract']));
+                tr.appendChild(td);
+
+                table.appendChild(tr);
+              }
+            }
+          }
+        }
+
+        var query = document.getElementById('searchQuery').value
+        var params = `query=${query}`;
+        xhr.send(params);
+      }
+
+    </script>
+  </body>
+</html>
